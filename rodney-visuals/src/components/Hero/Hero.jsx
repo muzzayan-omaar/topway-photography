@@ -3,7 +3,7 @@ import { TypeAnimation } from "react-type-animation";
 import heroImage from "../../assets/images/hero.jpg";
 import { useEffect, useState } from "react";
 
-/* ✅ Move component OUTSIDE Hero */
+
 function ScrollProgress() {
   const [scroll, setScroll] = useState(0);
   const [activeSection, setActiveSection] = useState("hero");
@@ -16,7 +16,6 @@ function ScrollProgress() {
       const progress = (window.scrollY / total) * 100;
       setScroll(progress);
 
-      // Simple section detection (you can expand later)
       const y = window.scrollY;
 
       if (y < window.innerHeight * 0.8) setActiveSection("hero");
@@ -34,53 +33,84 @@ function ScrollProgress() {
   const dots = ["hero", "work", "about", "contact"];
 
   return (
-    <div className="fixed right-6 top-1/2 -translate-y-1/2 z-50 flex flex-col items-center gap-6">
+    <>
+      {/* ================= DESKTOP (RIGHT SIDE) ================= */}
+      <div className="hidden md:flex fixed right-6 top-1/2 -translate-y-1/2 z-50 flex-col items-center gap-6">
 
-      {/* 🔥 MAIN PROGRESS LINE */}
-      <div className="relative h-44 w-[2px] bg-white/10 rounded-full overflow-hidden backdrop-blur-xl">
-        
-        {/* Glow background */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-transparent" />
+        {/* Progress Line */}
+        <div className="relative h-44 w-[2px] bg-white/10 rounded-full overflow-hidden backdrop-blur-xl">
+          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-transparent" />
 
-        {/* Active progress */}
-        <div
-          className="absolute bottom-0 w-full bg-gradient-to-t from-[#d8b88a] via-[#f5e1c8] to-[#d8b88a] shadow-[0_0_20px_rgba(216,184,138,0.6)] transition-all duration-150"
-          style={{ height: `${scroll}%` }}
-        />
-      </div>
-
-      {/* 🔥 SECTION DOTS */}
-      <div className="flex flex-col gap-4 items-center">
-        {dots.map((dot) => (
           <div
-            key={dot}
-            className="relative group cursor-pointer"
-          >
-            {/* outer ring */}
-            <div
-              className={`
-                w-2.5 h-2.5 rounded-full transition-all duration-300
-                ${
-                  activeSection === dot
-                    ? "bg-[#d8b88a] scale-125 shadow-[0_0_15px_rgba(216,184,138,0.7)]"
-                    : "bg-white/30 hover:bg-white/60"
-                }
-              `}
-            />
+            className="absolute bottom-0 w-full bg-gradient-to-t from-[#d8b88a] via-[#f5e1c8] to-[#d8b88a] shadow-[0_0_20px_rgba(216,184,138,0.6)] transition-all duration-150"
+            style={{ height: `${scroll}%` }}
+          />
+        </div>
 
-            {/* hover label */}
-            <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] tracking-widest text-white/60 opacity-0 group-hover:opacity-100 transition-all duration-300 capitalize">
-              {dot}
-            </span>
-          </div>
-        ))}
+        {/* Dots */}
+        <div className="flex flex-col gap-4 items-center">
+          {dots.map((dot) => (
+            <div key={dot} className="relative group cursor-pointer">
+              <div
+                className={`
+                  w-2.5 h-2.5 rounded-full transition-all duration-300
+                  ${
+                    activeSection === dot
+                      ? "bg-[#d8b88a] scale-125 shadow-[0_0_15px_rgba(216,184,138,0.7)]"
+                      : "bg-white/30 hover:bg-white/60"
+                  }
+                `}
+              />
+              <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] tracking-widest text-white/60 opacity-0 group-hover:opacity-100 transition-all capitalize">
+                {dot}
+              </span>
+            </div>
+          ))}
+        </div>
+
+        <span className="text-[10px] tracking-[0.3em] text-white/40 rotate-90">
+          SCROLL
+        </span>
       </div>
 
-      {/* SCROLL TEXT */}
-      <span className="text-[10px] tracking-[0.3em] text-white/40 rotate-90 mt-2">
-        SCROLL
-      </span>
-    </div>
+      {/* ================= MOBILE (BOTTOM BAR) ================= */}
+      <div className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
+
+        <div className="flex items-center gap-4 px-4 py-2 rounded-full backdrop-blur-xl bg-black/30 border border-white/10">
+
+          {/* Progress bar */}
+          <div className="w-28 h-[2px] bg-white/10 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-[#d8b88a] shadow-[0_0_10px_rgba(216,184,138,0.6)] transition-all duration-150"
+              style={{ width: `${scroll}%` }}
+            />
+          </div>
+
+          {/* Active section dot */}
+          <div className="flex items-center gap-2">
+            {dots.map((dot) => (
+              <div
+                key={dot}
+                className={`
+                  w-1.5 h-1.5 rounded-full transition-all duration-300
+                  ${
+                    activeSection === dot
+                      ? "bg-[#d8b88a] scale-125"
+                      : "bg-white/30"
+                  }
+                `}
+              />
+            ))}
+          </div>
+
+          {/* Label */}
+          <span className="text-[9px] tracking-[0.25em] text-white/50">
+            SCROLL
+          </span>
+
+        </div>
+      </div>
+    </>
   );
 }
 
@@ -122,7 +152,7 @@ export default function Hero() {
             transition={{ delay: 0.2 }}
           >
             <h1 className="font-serif text-5xl sm:text-6xl lg:text-7xl px-2 leading-[0.95] font-light tracking-tight">
-              Rodney{" "}
+              Topway{" "}
               <span className="signature-font text-[#d8b88a] font-normal ml-2">
                 Visuals
               </span>
@@ -154,7 +184,7 @@ export default function Hero() {
           {/* Buttons */}
           <div className="mt-10 flex flex-col sm:flex-row justify-center items-center gap-3 sm:gap-4">
             <button className="w-full max-w-[260px] sm:w-auto px-7 py-3 rounded-full text-sm cursor-pointer backdrop-blur-xl bg-white/10 border border-white/20 hover:bg-white/15 active:scale-95 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.25)]">
-              Book Now
+              Book Now!
             </button>
 
             <button className="w-full max-w-[260px] sm:w-auto px-7 py-3 rounded-full text-sm cursor-pointer backdrop-blur-xl bg-black/20 border border-white/10 hover:bg-white/10 active:scale-95 transition-all duration-300 shadow-[0_8px_30px_rgba(0,0,0,0.25)]">
