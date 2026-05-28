@@ -8,20 +8,16 @@ function ScrollProgress() {
   const [scroll, setScroll] = useState(0);
   const [activeSection, setActiveSection] = useState("hero");
 
+  const dots = ["hero", "work", "about", "contact"];
+
   useEffect(() => {
     const handleScroll = () => {
       const total =
         document.documentElement.scrollHeight - window.innerHeight;
 
       const progress = (window.scrollY / total) * 100;
+
       setScroll(progress);
-
-      const y = window.scrollY;
-
-      if (y < window.innerHeight * 0.8) setActiveSection("hero");
-      else if (y < window.innerHeight * 1.8) setActiveSection("work");
-      else if (y < window.innerHeight * 2.8) setActiveSection("about");
-      else setActiveSection("contact");
     };
 
     window.addEventListener("scroll", handleScroll);
@@ -30,93 +26,136 @@ function ScrollProgress() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  const dots = ["hero", "work", "about", "contact"];
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      (entries) => {
+        entries.forEach((entry) => {
+          if (entry.isIntersecting) {
+            setActiveSection(entry.target.id);
+          }
+        });
+      },
+      {
+        threshold: 0.4,
+      }
+    );
+
+    const sections = document.querySelectorAll("section");
+
+    sections.forEach((section) => {
+      observer.observe(section);
+    });
+
+    return () => observer.disconnect();
+  }, []);
 
   return (
     <>
-      {/* ================= DESKTOP (RIGHT SIDE) ================= */}
+      {/* ================= DESKTOP ================= */}
+
       <div className="hidden md:flex fixed right-6 top-1/2 -translate-y-1/2 z-50 flex-col items-center gap-6">
 
-        {/* Progress Line */}
-        <div className="relative h-44 w-[2px] bg-white/10 rounded-full overflow-hidden backdrop-blur-xl">
-          <div className="absolute inset-0 bg-gradient-to-b from-transparent via-white/5 to-transparent" />
+        {/* Current Section */}
 
+        <span className="text-[10px] tracking-[0.35em] text-[#d8b88a] uppercase">
+          {activeSection}
+        </span>
+
+        {/* Progress Line */}
+
+        <div className="relative h-44 w-[2px] bg-white/10 rounded-full overflow-hidden">
           <div
-            className="absolute bottom-0 w-full bg-gradient-to-t from-[#d8b88a] via-[#f5e1c8] to-[#d8b88a] shadow-[0_0_20px_rgba(216,184,138,0.6)] transition-all duration-150"
-            style={{ height: `${scroll}%` }}
+            className="absolute bottom-0 w-full bg-gradient-to-t from-[#d8b88a] via-[#f5e1c8] to-[#d8b88a] transition-all duration-200 shadow-[0_0_20px_rgba(216,184,138,0.7)]"
+            style={{
+              height: `${scroll}%`,
+            }}
           />
         </div>
 
         {/* Dots */}
+
         <div className="flex flex-col gap-4 items-center">
           {dots.map((dot) => (
-            <div key={dot} className="relative group cursor-pointer">
-              <div
-                className={`
-                  w-2.5 h-2.5 rounded-full transition-all duration-300
-                  ${
-                    activeSection === dot
-                      ? "bg-[#d8b88a] scale-125 shadow-[0_0_15px_rgba(216,184,138,0.7)]"
-                      : "bg-white/30 hover:bg-white/60"
-                  }
-                `}
+            <button
+              key={dot}
+              onClick={() =>
+                document
+                  .getElementById(dot)
+                  ?.scrollIntoView({ behavior: "smooth" })
+              }
+              className="relative group"
+            >
+              <motion.div
+                animate={{
+                  scale: activeSection === dot ? 1.5 : 1,
+                }}
+                transition={{
+                  type: "spring",
+                  stiffness: 300,
+                }}
+                className={`w-2.5 h-2.5 rounded-full ${
+                  activeSection === dot
+                    ? "bg-[#d8b88a] shadow-[0_0_15px_rgba(216,184,138,0.8)]"
+                    : "bg-white/30"
+                }`}
               />
+
               <span className="absolute right-6 top-1/2 -translate-y-1/2 text-[10px] tracking-widest text-white/60 opacity-0 group-hover:opacity-100 transition-all capitalize">
                 {dot}
               </span>
-            </div>
+            </button>
           ))}
         </div>
-
-        <span className="text-[10px] tracking-[0.3em] text-white/40 rotate-90">
-          SCROLL
-        </span>
       </div>
 
-      {/* ================= MOBILE (BOTTOM BAR) ================= */}
+      {/* ================= MOBILE ================= */}
+
       <div className="md:hidden fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
 
         <div className="flex items-center gap-4 px-4 py-2 rounded-full backdrop-blur-xl bg-black/30 border border-white/10">
 
-          {/* Progress bar */}
+          {/* Progress */}
+
           <div className="w-28 h-[2px] bg-white/10 rounded-full overflow-hidden">
             <div
-              className="h-full bg-[#d8b88a] shadow-[0_0_10px_rgba(216,184,138,0.6)] transition-all duration-150"
-              style={{ width: `${scroll}%` }}
+              className="h-full bg-[#d8b88a] transition-all duration-150"
+              style={{
+                width: `${scroll}%`,
+              }}
             />
           </div>
 
-          {/* Active section dot */}
+          {/* Dots */}
+
           <div className="flex items-center gap-2">
             {dots.map((dot) => (
               <div
                 key={dot}
-                className={`
-                  w-1.5 h-1.5 rounded-full transition-all duration-300
-                  ${
-                    activeSection === dot
-                      ? "bg-[#d8b88a] scale-125"
-                      : "bg-white/30"
-                  }
-                `}
+                className={`w-1.5 h-1.5 rounded-full ${
+                  activeSection === dot
+                    ? "bg-[#d8b88a] scale-125"
+                    : "bg-white/30"
+                }`}
               />
             ))}
           </div>
 
-          {/* Label */}
-          <span className="text-[9px] tracking-[0.25em] text-white/50">
-            SCROLL
-          </span>
+          {/* Active Label */}
 
+          <span className="text-[9px] uppercase tracking-[0.25em] text-[#d8b88a]">
+            {activeSection}
+          </span>
         </div>
       </div>
     </>
   );
 }
-
 export default function Hero() {
   return (
-    <section className="relative min-h-screen w-full overflow-hidden">
+    <section
+  id="hero"
+  className="relative min-h-screen w-full overflow-hidden"
+>
       {/* Scroll indicator */}
       <ScrollProgress />
 
@@ -194,7 +233,15 @@ export default function Hero() {
 
           {/* Scroll arrow */}
           <div className="mt-10 flex justify-center">
-            <div className="animate-bounce">
+            <motion.div
+  animate={{
+    y: [0, 10, 0],
+  }}
+  transition={{
+    duration: 2,
+    repeat: Infinity,
+  }}
+>
               <svg
                 width="22"
                 height="22"
@@ -205,7 +252,7 @@ export default function Hero() {
               >
                 <path strokeLinecap="round" strokeLinejoin="round" d="M19 9l-7 7-7-7" />
               </svg>
-            </div>
+            </motion.div>
           </div>
 
         </div>
