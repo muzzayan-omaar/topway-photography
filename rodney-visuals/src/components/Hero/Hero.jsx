@@ -8,7 +8,7 @@ function ScrollProgress() {
   const [scroll, setScroll] = useState(0);
   const [activeSection, setActiveSection] = useState("hero");
 
-  const dots = ["hero", "work", "about", "contact"];
+  const dots = ["hero", "work", "about", "where", "clients", "cta"];
 
   useEffect(() => {
     const handleScroll = () => {
@@ -48,6 +48,8 @@ function ScrollProgress() {
 
     return () => observer.disconnect();
   }, []);
+
+  
 
   return (
     <>
@@ -151,6 +153,13 @@ function ScrollProgress() {
   );
 }
 export default function Hero() {
+  const [offset, setOffset] = useState(0);
+
+useEffect(() => {
+  const handleScroll = () => setOffset(window.scrollY * 0.5);
+  window.addEventListener("scroll", handleScroll);
+  return () => window.removeEventListener("scroll", handleScroll);
+}, []);
   return (
     <section
   id="hero"
@@ -160,11 +169,16 @@ export default function Hero() {
       <ScrollProgress />
 
       {/* Background Image */}
-      <img
-        src={heroImage}
-        alt="hero"
-        className="absolute inset-0 h-full w-full object-cover object-center"
-      />
+<div className="absolute inset-0 overflow-hidden">
+  <img
+    src={heroImage}
+    alt="hero"
+    className="h-full w-full object-cover object-center scale-110"
+    style={{
+      transform: `translateY(${offset * -1}px) scale(1.1)`,
+    }}
+  />
+</div>
 
       {/* Overlays */}
       <div className="absolute inset-0 bg-black/20" />

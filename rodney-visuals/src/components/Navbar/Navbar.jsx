@@ -49,7 +49,7 @@ export default function Navbar() {
               tracking-tight
             "
           >
-            Rodney{" "}
+            Topway{" "}
             <span className="signature-font text-[#d8b88a]">
               Visuals
             </span>
