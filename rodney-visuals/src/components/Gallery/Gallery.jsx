@@ -10,30 +10,31 @@ export default function Gallery() {
   const [error, setError] = useState(null);
 
   useEffect(() => {
-    const fetchGallery = async () => {
-      try {
-        const { data } = await axios.get("http://localhost:5000/api/gallery");
+    const API_URL = import.meta.env.VITE_API_URL;
 
-        // Handle common API response patterns
-        let galleryData = [];
-        if (Array.isArray(data)) {
-          galleryData = data;
-        } else if (data?.data && Array.isArray(data.data)) {
-          galleryData = data.data;
-        } else if (data?.works && Array.isArray(data.works)) {
-          galleryData = data.works;
-        }
+const fetchGallery = async () => {
+  try {
+    const { data } = await axios.get(`${API_URL}/api/gallery`);
 
-        setWorks(galleryData);
-        setError(null);
-      } catch (err) {
-        console.error("Failed to fetch gallery:", err);
-        setError("Failed to load works. Please try again later.");
-        setWorks([]);
-      } finally {
-        setLoading(false);
-      }
-    };
+    let galleryData = [];
+    if (Array.isArray(data)) {
+      galleryData = data;
+    } else if (data?.data && Array.isArray(data.data)) {
+      galleryData = data.data;
+    } else if (data?.works && Array.isArray(data.works)) {
+      galleryData = data.works;
+    }
+
+    setWorks(galleryData);
+    setError(null);
+  } catch (err) {
+    console.error("Failed to fetch gallery:", err);
+    setError("Failed to load works. Please try again later.");
+    setWorks([]);
+  } finally {
+    setLoading(false);
+  }
+};
 
     fetchGallery();
   }, []);
