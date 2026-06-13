@@ -1,15 +1,12 @@
 import { useState } from "react";
+import axios from "axios";
 import { useNavigate } from "react-router-dom";
-import api from "../../api/axios";
 
 export default function Login() {
   const navigate = useNavigate();
 
-  const [form, setForm] = useState({
-    username: "",
-    password: "",
-  });
-
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
 
   const submitHandler = async (e) => {
@@ -18,17 +15,17 @@ export default function Login() {
     try {
       setLoading(true);
 
-      const { data } = await api.post(
-        "/auth/login",
-        form
-      );
+  const { data } = await axios.post(
+    "http://localhost:5000/api/auth/login",
+    {
+      username,
+      password,
+    }
+  );
 
-      localStorage.setItem(
-        "adminToken",
-        data.token
-      );
+      localStorage.setItem("adminToken", data.token);
 
-      navigate("/admin/gallery");
+      navigate("/admin");
     } catch (error) {
       alert(
         error.response?.data?.message ||
@@ -40,47 +37,47 @@ export default function Login() {
   };
 
   return (
-    <div className="min-h-screen bg-black flex justify-center items-center">
-      <form
-        onSubmit={submitHandler}
-        className="w-full max-w-md bg-zinc-900 p-8 rounded-2xl"
-      >
-        <h1 className="text-3xl mb-6 text-center">
+    <div className="min-h-screen bg-[#080808] flex items-center justify-center p-6">
+      <div className="w-full max-w-md bg-white/5 border border-white/10 rounded-3xl p-8 backdrop-blur-xl">
+
+        <h1 className="text-3xl font-serif text-center mb-2">
           Admin Login
         </h1>
 
-        <input
-          type="text"
-          placeholder="Username"
-          className="w-full p-3 mb-4 bg-zinc-800 rounded"
-          value={form.username}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              username: e.target.value,
-            })
-          }
-        />
+        <p className="text-white/50 text-sm text-center mb-8">
+          Rodney Visuals Dashboard
+        </p>
 
-        <input
-          type="password"
-          placeholder="Password"
-          className="w-full p-3 mb-4 bg-zinc-800 rounded"
-          value={form.password}
-          onChange={(e) =>
-            setForm({
-              ...form,
-              password: e.target.value,
-            })
-          }
-        />
-
-        <button
-          className="w-full bg-[#d8b88a] text-black py-3 rounded"
+        <form
+          onSubmit={submitHandler}
+          className="space-y-4"
         >
-          {loading ? "Logging in..." : "Login"}
-        </button>
-      </form>
+          <input
+            type="text"
+            placeholder="Username"
+            value={username}
+            onChange={(e) => setUsername(e.target.value)}
+            className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 outline-none"
+          />
+
+          <input
+            type="password"
+            placeholder="Password"
+            value={password}
+            onChange={(e) =>
+              setPassword(e.target.value)
+            }
+            className="w-full px-4 py-3 rounded-xl bg-black/30 border border-white/10 outline-none"
+          />
+
+          <button
+            disabled={loading}
+            className="w-full py-3 rounded-xl bg-[#d8b88a] text-black font-medium"
+          >
+            {loading ? "Signing In..." : "Login"}
+          </button>
+        </form>
+      </div>
     </div>
   );
 }
