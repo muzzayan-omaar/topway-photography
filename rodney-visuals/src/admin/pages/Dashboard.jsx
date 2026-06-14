@@ -79,9 +79,18 @@ export default function Dashboard() {
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar - Manual Only */}
         <aside
-          className={`border-r border-white/10 bg-[#0a0a0a] transition-all duration-300 flex-shrink-0 overflow-hidden z-40
-            ${isSidebarExpanded ? "w-72" : "w-20"}`}
-        >
+  className={`
+    sticky top-[81px]
+    h-[calc(100vh-81px)]
+    border-r border-white/10
+    bg-[#0a0a0a]
+    transition-all duration-300
+    flex-shrink-0
+    overflow-y-auto
+    z-40
+    ${isSidebarExpanded ? "w-72" : "w-20"}
+  `}
+>
           <div className="h-full py-6">
             <nav className="px-3 space-y-1 h-full">
               {tabs.map((tab) => {
