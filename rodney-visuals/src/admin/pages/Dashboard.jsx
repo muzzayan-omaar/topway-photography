@@ -33,7 +33,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#080808] text-white flex flex-col">
+    <div className="min-h-screen bg-[#080808] text-white flex flex-col overflow-hidden">
       {/* Header */}
       <header className="border-b border-white/10 bg-[#0a0a0a]/90 backdrop-blur-md sticky top-0 z-50">
         <div className="px-6 py-5 flex justify-between items-center">
@@ -78,19 +78,19 @@ export default function Dashboard() {
 
       <div className="flex flex-1 overflow-hidden">
         {/* Sidebar - Manual Only */}
-        <aside
-  className={`
-    sticky top-[81px]
-    h-[calc(100vh-81px)]
-    border-r border-white/10
-    bg-[#0a0a0a]
-    transition-all duration-300
-    flex-shrink-0
-    overflow-y-auto
-    z-40
-    ${isSidebarExpanded ? "w-72" : "w-20"}
-  `}
->
+          <aside
+            className={`
+              sticky top-0 self-start
+              h-screen
+              border-r border-white/10
+              bg-[#0a0a0a]
+              transition-all duration-300
+              flex-shrink-0
+              overflow-hidden
+              z-40
+              ${isSidebarExpanded ? "w-72" : "w-20"}
+            `}
+          >
           <div className="h-full py-6">
             <nav className="px-3 space-y-1 h-full">
               {tabs.map((tab) => {
