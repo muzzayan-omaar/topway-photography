@@ -80,38 +80,71 @@ export default function HeroManager() {
   };
 
   // ================= SAVE =================
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+// ================= SAVE =================
+const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    try {
-      setSaving(true);
+  try {
+    setSaving(true);
 
-      const formData = new FormData();
-      formData.append("tagline", hero.tagline);
-      formData.append("title", hero.title);
-      formData.append("animatedTexts", JSON.stringify(hero.animatedTexts));
-      formData.append("primaryButtonText", hero.primaryButtonText);
-      formData.append("primaryButtonLink", hero.primaryButtonLink);
-      formData.append("secondaryButtonText", hero.secondaryButtonText);
-      formData.append("secondaryButtonLink", hero.secondaryButtonLink);
 
-      if (imageFile) {
-        formData.append("heroImage", imageFile);
-      }
-
-      await axios.put(`${API_URL}/api/hero`, formData, {
-        headers: { "Content-Type": "multipart/form-data" },
-      });
-
-      await fetchHero();
-      setImageFile(null);
-
-    } catch (err) {
-      console.log("Save error:", err.message);
-    } finally {
-      setSaving(false);
+ const token = localStorage.getItem("token");
+if (token) {
+  try {
+    const payload = JSON.parse(atob(token.split('.')[1]));
+    console.log("📋 Token Payload:", payload);
+    console.log("⏰ Expires at:", new Date(payload.exp * 1000).toLocaleString());
+    console.log("🕒 Current time:", new Date().toLocaleString());
+    
+    if (payload.exp * 1000 < Date.now()) {
+      console.log("❌ TOKEN IS EXPIRED!");
+      alert("Your session has expired. Please log in again.");
     }
-  };
+  } catch (e) {
+    console.log("❌ Cannot decode token");
+  }
+}
+
+    const formData = new FormData();
+    formData.append("tagline", hero.tagline);
+    formData.append("title", hero.title);
+    formData.append("animatedTexts", JSON.stringify(hero.animatedTexts));
+    formData.append("primaryButtonText", hero.primaryButtonText);
+    formData.append("primaryButtonLink", hero.primaryButtonLink);
+    formData.append("secondaryButtonText", hero.secondaryButtonText);
+    formData.append("secondaryButtonLink", hero.secondaryButtonLink);
+
+    if (imageFile) {
+      formData.append("heroImage", imageFile);
+    }
+
+    
+
+    const res = await axios.put(`${API_URL}/api/hero`, formData, {
+      headers: {
+        "Content-Type": "multipart/form-data",
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    console.log("✅ Save successful:", res.data);
+    await fetchHero();
+    setImageFile(null);
+    alert("Hero updated successfully!");
+
+  } catch (err) {
+    console.error("❌ Full error:", err.response || err);
+    
+    if (err.response?.status === 401) {
+      alert("Authentication failed. Token may be invalid or expired.");
+      console.log("Response data:", err.response?.data);
+    } else {
+      alert("Failed to save changes.");
+    }
+  } finally {
+    setSaving(false);
+  }
+};
 
   if (loading) {
     return (
