@@ -214,11 +214,67 @@ export default function GalleryManager() {
     }
   };
 
-  const submitHandler = async (e) => {
-    e.preventDefault();
-    // ... (your existing submit logic - unchanged)
-    // Just call fetchGallery(pagination.page) after success
-  };
+const submitHandler = async (e) => {
+  e.preventDefault();
+  setIsSubmitting(true);
+
+  try {
+    const token = localStorage.getItem("adminToken");
+
+    const formData = new FormData();
+    formData.append("title", title);
+    formData.append("category", category);
+    formData.append("featured", featured);
+
+    if (image) {
+      formData.append("image", image);
+    }
+
+    // 🟢 CREATE
+    if (!editingItem) {
+      await axios.post(
+        `${API_URL}/api/gallery`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      showToast("Image added successfully");
+    }
+
+    // 🟡 UPDATE
+    else {
+      await axios.put(
+        `${API_URL}/api/gallery/${editingItem._id}`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      );
+
+      showToast("Image updated successfully");
+    }
+
+    // refresh + cleanup
+    closeModal();
+    fetchGallery(pagination.page);
+  } catch (error) {
+    console.error(error);
+    showToast(
+      error?.response?.data?.message || "Something went wrong",
+      "error"
+    );
+  } finally {
+    setIsSubmitting(false);
+  }
+};
 
   const categories = ["Wedding", "Graduation", "Corporate", "Birthday", "Fashion", "Portrait"];
   const filterCategories = ["All", ...new Set(allGalleryForStats.map(item => item.category))];
@@ -470,6 +526,96 @@ export default function GalleryManager() {
           toast.type === "error" ? "bg-red-600" : "bg-green-600"
         }`}>
           {toast.message}
+        </div>
+      )}
+
+            {/* === ADD / EDIT MODAL === */}
+      {isModalOpen && (
+        <div className="fixed inset-0 bg-black/80 z-[70] flex items-center justify-center p-4">
+          <div className="bg-[#111] border border-white/10 rounded-3xl w-full max-w-lg max-h-[90vh] overflow-auto">
+            <div className="p-8">
+              <h3 className="text-2xl font-medium mb-6">
+                {editingItem ? "Edit Image" : "Add New Image"}
+              </h3>
+
+              <form onSubmit={submitHandler} className="space-y-6">
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Title</label>
+                  <input
+                    type="text"
+                    value={title}
+                    onChange={(e) => setTitle(e.target.value)}
+                    className="w-full bg-black/50 border border-white/10 rounded-2xl px-4 py-3 focus:outline-none focus:border-[#d8b88a]"
+                    required
+                  />
+                </div>
+
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Category</label>
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="w-full bg-black/50 border border-white/10 rounded-2xl px-4 py-3 focus:outline-none focus:border-[#d8b88a]"
+                    required
+                  >
+                    <option value="">Select Category</option>
+                    {categories.map(cat => (
+                      <option key={cat} value={cat}>{cat}</option>
+                    ))}
+                  </select>
+                </div>
+
+                <div className="flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    checked={featured}
+                    onChange={(e) => setFeatured(e.target.checked)}
+                    className="w-5 h-5 accent-[#d8b88a]"
+                  />
+                  <label className="text-white/80">Mark as Featured</label>
+                </div>
+
+                <div>
+                  <label className="block text-sm text-white/60 mb-2">Image</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={(e) => {
+                      const file = e.target.files[0];
+                      setImage(file);
+                      if (file) {
+                        setImagePreview(URL.createObjectURL(file));
+                      }
+                    }}
+                    className="w-full bg-black/50 border border-white/10 rounded-2xl px-4 py-3"
+                  />
+                </div>
+
+                {imagePreview && (
+                  <div className="mt-4">
+                    <img src={imagePreview} alt="Preview" className="max-h-64 rounded-2xl mx-auto" />
+                  </div>
+                )}
+
+                <div className="flex gap-4 pt-4">
+                  <button
+                    type="button"
+                    onClick={closeModal}
+                    className="flex-1 py-3 bg-white/10 hover:bg-white/20 rounded-2xl transition"
+                  >
+                    Cancel
+                  </button>
+                  <button
+                    type="submit"
+                    disabled={isSubmitting}
+                    className="flex-1 py-3 bg-[#d8b88a] hover:bg-[#c9a46f] text-black rounded-2xl font-medium transition disabled:opacity-70"
+                  >
+                    {isSubmitting ? "Saving..." : editingItem ? "Update Image" : "Add Image"}
+                  </button>
+                </div>
+              </form>
+            </div>
+          </div>
         </div>
       )}
     </div>
