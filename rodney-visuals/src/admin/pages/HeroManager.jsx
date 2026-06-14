@@ -88,7 +88,7 @@ const handleSubmit = async (e) => {
     setSaving(true);
 
 
- const token = localStorage.getItem("token");
+ const token = localStorage.getItem("adminToken");
 if (token) {
   try {
     const payload = JSON.parse(atob(token.split('.')[1]));
