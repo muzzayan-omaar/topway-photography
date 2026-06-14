@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { API_URL } from "../../config/api";
 
-const HeroManager = () => {
+export default function HeroManager() {
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
 
@@ -19,29 +19,37 @@ const HeroManager = () => {
   const [imageFile, setImageFile] = useState(null);
   const [preview, setPreview] = useState("");
 
-  // ================= GET HERO =================
-    const fetchHero = async () => {
-  try {
-    setLoading(true);
+  // ================= FETCH HERO =================
+  const fetchHero = async () => {
+    try {
+      setLoading(true);
+      const res = await axios.get(`${API_URL}/api/hero`);
 
-    const res = await axios.get(`${API_URL}/api/hero`);
+      const data = res.data || {};
 
-    console.log("RAW RESPONSE:", res);
-    console.log("DATA ONLY:", res.data);
+      setHero({
+        tagline: data.tagline || "",
+        title: data.title || "",
+        animatedTexts: data.animatedTexts || [],
+        primaryButtonText: data.primaryButtonText || "",
+        primaryButtonLink: data.primaryButtonLink || "",
+        secondaryButtonText: data.secondaryButtonText || "",
+        secondaryButtonLink: data.secondaryButtonLink || "",
+      });
 
-    setHero(res.data);
-  } catch (err) {
-    console.log("Fetch hero error:", err);
-  } finally {
-    setLoading(false);
-  }
-};
+      setPreview(data.heroImage || "");
+    } catch (err) {
+      console.log("Fetch hero error:", err);
+    } finally {
+      setLoading(false);
+    }
+  };
 
   useEffect(() => {
     fetchHero();
   }, []);
 
-  // ================= INPUT HANDLER =================
+  // ================= INPUT =================
   const handleChange = (e) => {
     setHero({ ...hero, [e.target.name]: e.target.value });
   };
@@ -50,15 +58,12 @@ const HeroManager = () => {
   const handleImage = (e) => {
     const file = e.target.files[0];
     setImageFile(file);
-    setPreview(URL.createObjectURL(file));
+    if (file) setPreview(URL.createObjectURL(file));
   };
 
-  // ================= ANIMATED TEXTS =================
+  // ================= TEXTS =================
   const addText = () => {
-    setHero({
-      ...hero,
-      animatedTexts: [...hero.animatedTexts, ""],
-    });
+    setHero({ ...hero, animatedTexts: [...hero.animatedTexts, ""] });
   };
 
   const updateText = (index, value) => {
@@ -68,8 +73,10 @@ const HeroManager = () => {
   };
 
   const removeText = (index) => {
-    const updated = hero.animatedTexts.filter((_, i) => i !== index);
-    setHero({ ...hero, animatedTexts: updated });
+    setHero({
+      ...hero,
+      animatedTexts: hero.animatedTexts.filter((_, i) => i !== index),
+    });
   };
 
   // ================= SAVE =================
@@ -80,44 +87,25 @@ const HeroManager = () => {
       setSaving(true);
 
       const formData = new FormData();
-
       formData.append("tagline", hero.tagline);
       formData.append("title", hero.title);
-      formData.append(
-        "animatedTexts",
-        JSON.stringify(hero.animatedTexts)
-      );
-
-      formData.append(
-        "primaryButtonText",
-        hero.primaryButtonText
-      );
-      formData.append(
-        "primaryButtonLink",
-        hero.primaryButtonLink
-      );
-
-      formData.append(
-        "secondaryButtonText",
-        hero.secondaryButtonText
-      );
-      formData.append(
-        "secondaryButtonLink",
-        hero.secondaryButtonLink
-      );
+      formData.append("animatedTexts", JSON.stringify(hero.animatedTexts));
+      formData.append("primaryButtonText", hero.primaryButtonText);
+      formData.append("primaryButtonLink", hero.primaryButtonLink);
+      formData.append("secondaryButtonText", hero.secondaryButtonText);
+      formData.append("secondaryButtonLink", hero.secondaryButtonLink);
 
       if (imageFile) {
         formData.append("heroImage", imageFile);
       }
 
       await axios.put(`${API_URL}/api/hero`, formData, {
-  headers: {
-    "Content-Type": "multipart/form-data",
-  },
-});
+        headers: { "Content-Type": "multipart/form-data" },
+      });
 
-      alert("Hero updated successfully!");
-      fetchHero();
+      await fetchHero();
+      setImageFile(null);
+
     } catch (err) {
       console.log("Save error:", err.message);
     } finally {
@@ -125,123 +113,153 @@ const HeroManager = () => {
     }
   };
 
-  if (loading) return <p>Loading hero...</p>;
+  if (loading) {
+    return (
+      <div className="text-white/60 p-6">
+        Loading hero section...
+      </div>
+    );
+  }
 
   return (
-    <div className="p-6 max-w-4xl mx-auto text-white">
-      <h1 className="text-2xl font-bold mb-6">Hero Manager</h1>
+    <div className="space-y-8 text-white">
 
-      <form onSubmit={handleSubmit} className="space-y-4">
+      {/* HEADER */}
+      <div>
+        <h2 className="text-4xl font-serif">Hero Section</h2>
+        <p className="text-white/50 mt-1">
+          Manage homepage hero content
+        </p>
+      </div>
 
-        {/* Tagline */}
-        <input
-          name="tagline"
-          value={hero.tagline}
-          onChange={handleChange}
-          placeholder="Tagline"
-          className="w-full p-2 text-black"
-        />
+      {/* FORM */}
+      <form
+        onSubmit={handleSubmit}
+        className="bg-white/5 border border-white/10 rounded-3xl p-6 space-y-6"
+      >
 
-        {/* Title */}
-        <input
-          name="title"
-          value={hero.title}
-          onChange={handleChange}
-          placeholder="Title"
-          className="w-full p-2 text-black"
-        />
+        {/* TEXT FIELDS */}
+        <div className="grid md:grid-cols-2 gap-4">
 
-        {/* Animated Texts */}
-        <div>
-          <h3 className="font-semibold">Animated Texts</h3>
-          {(hero.animatedTexts || []).map((text, index) => (
-            <div key={index} className="flex gap-2 mb-2">
-              <input
-                value={text}
-                onChange={(e) =>
-                  updateText(index, e.target.value)
-                }
-                className="flex-1 p-2 text-black"
-              />
-              <button
-                type="button"
-                onClick={() => removeText(index)}
-                className="bg-red-500 px-3"
-              >
-                X
-              </button>
-            </div>
-          ))}
+          <input
+            name="tagline"
+            value={hero.tagline}
+            onChange={handleChange}
+            placeholder="Tagline"
+            className="bg-black/40 border border-white/10 px-4 py-3 rounded-2xl focus:outline-none focus:border-[#d8b88a]"
+          />
 
-          <button
-            type="button"
-            onClick={addText}
-            className="bg-blue-500 px-3 py-1"
-          >
-            + Add Text
-          </button>
+          <input
+            name="title"
+            value={hero.title}
+            onChange={handleChange}
+            placeholder="Title"
+            className="bg-black/40 border border-white/10 px-4 py-3 rounded-2xl focus:outline-none focus:border-[#d8b88a]"
+          />
         </div>
 
-        {/* Buttons */}
-        <input
-          name="primaryButtonText"
-          value={hero.primaryButtonText || ""}
-          onChange={handleChange}
-          placeholder="Primary Button Text"
-          className="w-full p-2 text-black"
-        />
-
-        <input
-          name="primaryButtonLink"
-          value={hero.primaryButtonLink || ""}
-          onChange={handleChange}
-          placeholder="Primary Button Link"
-          className="w-full p-2 text-black"
-        />
-
-        <input
-          name="secondaryButtonText"
-          value={hero.secondaryButtonText || ""}
-          onChange={handleChange}
-          placeholder="Secondary Button Text"
-          className="w-full p-2 text-black"
-        />
-
-        <input
-          name="secondaryButtonLink"
-          value={hero.secondaryButtonLink || ""}
-          onChange={handleChange}
-          placeholder="Secondary Button Link"
-          className="w-full p-2 text-black"
-        />
-
-        {/* Image Upload */}
+        {/* ANIMATED TEXTS */}
         <div>
+          <div className="flex justify-between items-center mb-3">
+            <h3 className="font-medium">Animated Texts</h3>
+
+            <button
+              type="button"
+              onClick={addText}
+              className="px-3 py-1 rounded-xl bg-white/10 hover:bg-white/20 text-sm"
+            >
+              + Add
+            </button>
+          </div>
+
+          <div className="space-y-2">
+            {hero.animatedTexts.map((text, i) => (
+              <div key={i} className="flex gap-2">
+                <input
+                  value={text}
+                  onChange={(e) => updateText(i, e.target.value)}
+                  className="flex-1 bg-black/40 border border-white/10 px-4 py-2 rounded-xl"
+                />
+
+                <button
+                  type="button"
+                  onClick={() => removeText(i)}
+                  className="px-3 rounded-xl bg-red-500/20 text-red-400"
+                >
+                  ✕
+                </button>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* BUTTONS */}
+        <div className="grid md:grid-cols-2 gap-4">
           <input
-            type="file"
-            onChange={handleImage}
+            name="primaryButtonText"
+            value={hero.primaryButtonText}
+            onChange={handleChange}
+            placeholder="Primary Button Text"
+            className="bg-black/40 border border-white/10 px-4 py-3 rounded-2xl"
           />
+
+          <input
+            name="primaryButtonLink"
+            value={hero.primaryButtonLink}
+            onChange={handleChange}
+            placeholder="Primary Button Link"
+            className="bg-black/40 border border-white/10 px-4 py-3 rounded-2xl"
+          />
+
+          <input
+            name="secondaryButtonText"
+            value={hero.secondaryButtonText}
+            onChange={handleChange}
+            placeholder="Secondary Button Text"
+            className="bg-black/40 border border-white/10 px-4 py-3 rounded-2xl"
+          />
+
+          <input
+            name="secondaryButtonLink"
+            value={hero.secondaryButtonLink}
+            onChange={handleChange}
+            placeholder="Secondary Button Link"
+            className="bg-black/40 border border-white/10 px-4 py-3 rounded-2xl"
+          />
+        </div>
+
+        {/* IMAGE */}
+        <div>
+          <input type="file" onChange={handleImage} />
 
           {preview && (
             <img
               src={preview}
-              alt="Hero"
-              className="mt-3 w-full max-h-64 object-cover"
+              className="mt-4 w-full h-60 object-cover rounded-2xl border border-white/10"
             />
           )}
         </div>
 
-        {/* Submit */}
-        <button
-          type="submit"
-          disabled={saving}
-          className="bg-green-500 px-4 py-2"
-        >
-          {saving ? "Saving..." : "Save Hero"}
-        </button>
+        {/* ACTIONS */}
+        <div className="flex gap-3 pt-4">
+          <button
+            type="submit"
+            disabled={saving}
+            className="px-6 py-3 rounded-2xl bg-[#d8b88a] text-black font-medium"
+          >
+            {saving ? "Saving..." : "Save Hero"}
+          </button>
+
+          <button
+            type="button"
+            onClick={fetchHero}
+            className="px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/20"
+          >
+            Reset
+          </button>
+        </div>
+
       </form>
     </div>
   );
-};
-
-export default HeroManager;
+}

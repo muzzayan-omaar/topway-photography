@@ -33,7 +33,7 @@ export default function Dashboard() {
   ];
 
   return (
-    <div className="min-h-screen bg-[#080808] text-white flex flex-col overflow-hidden">
+    <div className="h-screen bg-[#080808] text-white flex flex-col overflow-hidden">
       {/* Header */}
       <header className="border-b border-white/10 bg-[#0a0a0a]/90 backdrop-blur-md sticky top-0 z-50">
         <div className="px-6 py-5 flex justify-between items-center">

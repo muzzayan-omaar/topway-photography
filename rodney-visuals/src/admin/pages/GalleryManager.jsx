@@ -35,6 +35,8 @@ export default function GalleryManager() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
+  const [openCategory, setOpenCategory] = useState(false);
+
   // Delete Confirmation
   const [deleteConfirm, setDeleteConfirm] = useState({ 
     show: false, 
@@ -283,10 +285,10 @@ const submitHandler = async (e) => {
     <div className="space-y-8">
       {/* Header */}
       <div className="flex justify-between items-center">
-        <h1 className="text-4xl font-semibold">Gallery Manager</h1>
+                 
         <button
           onClick={() => openModal()}
-          className="flex items-center gap-3 bg-[#d8b88a] hover:bg-[#c9a46f] text-black px-6 py-3 rounded-2xl font-medium transition"
+          className="flex cursor-pointer items-center gap-3 bg-[#d8b88a] hover:bg-[#c9a46f] text-black px-6 py-3 rounded-2xl font-medium transition"
         >
           <Plus className="w-5 h-5" />
           Add New Image
@@ -294,80 +296,151 @@ const submitHandler = async (e) => {
       </div>
 
       {/* Category Statistics */}
-      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
-        <div className="bg-white/5 border border-white/10 rounded-3xl p-6">
-          <p className="text-white/60 text-sm">Total Images</p>
-          <p className="text-4xl font-semibold mt-2">{pagination.total}</p>
+      <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-5">
+
+        {/* Total */}
+        <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-5 hover:bg-white/[0.06] transition-all">
+          <div className="absolute inset-0 bg-gradient-to-br from-white/5 to-transparent opacity-0 group-hover:opacity-100 transition" />
+          
+          <p className="text-white/50 text-xs tracking-wide uppercase">
+            Total
+          </p>
+
+          <p className="text-3xl font-semibold mt-2">
+            {pagination.total}
+          </p>
+
+          <div className="mt-3 h-1 w-full bg-white/5 rounded-full overflow-hidden">
+            <div className="h-full w-2/3 bg-[#d8b88a] rounded-full" />
+          </div>
         </div>
-        <div className="bg-white/5 border border-white/10 rounded-3xl p-6">
-          <p className="text-white/60 text-sm">Featured</p>
-          <p className="text-4xl font-semibold mt-2 text-[#d8b88a]">{totalFeatured}</p>
+
+        {/* Featured */}
+        <div className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-5 hover:bg-white/[0.06] transition-all">
+          <p className="text-white/50 text-xs tracking-wide uppercase">
+            Featured
+          </p>
+
+          <p className="text-3xl font-semibold mt-2 text-[#d8b88a]">
+            {totalFeatured}
+          </p>
+
+          <p className="text-white/40 text-xs mt-2">
+            Highlighted content
+          </p>
         </div>
+
+        {/* Dynamic categories */}
         {Object.entries(categoryStats).slice(0, 4).map(([cat, count]) => (
-          <div key={cat} className="bg-white/5 border border-white/10 rounded-3xl p-6">
-            <p className="text-white/60 text-sm">{cat}</p>
-            <p className="text-4xl font-semibold mt-2">{count}</p>
+          <div
+            key={cat}
+            className="group relative overflow-hidden rounded-2xl border border-white/10 bg-white/[0.03] p-5 hover:bg-white/[0.06] transition-all"
+          >
+            <p className="text-white/50 text-xs tracking-wide uppercase">
+              {cat}
+            </p>
+
+            <p className="text-2xl font-semibold mt-2">
+              {count}
+            </p>
+
+            <div className="mt-4 flex items-center gap-2">
+              <div className="h-1.5 w-1.5 rounded-full bg-[#d8b88a]" />
+              <div className="h-1.5 w-1.5 rounded-full bg-white/20" />
+              <div className="h-1.5 w-1.5 rounded-full bg-white/10" />
+            </div>
           </div>
         ))}
       </div>
 
-      {/* Filters */}
-      <div className="flex flex-wrap gap-4 items-center bg-white/5 border border-white/10 rounded-3xl p-6">
-        <div className="flex-1 min-w-[280px] relative">
-          <Search className="absolute left-4 top-3.5 text-white/40" />
+      {/* Filters - Modern Control Bar */}
+      <div className="flex flex-wrap items-center gap-3 p-4 rounded-2xl bg-[#0b0b0b] border border-white/10">
+
+        {/* Search */}
+        <div className="flex-1 min-w-[220px] relative">
+          <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-white/40" />
           <input
             type="text"
-            placeholder="Search by title..."
+            placeholder="Search gallery..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
-            className="w-full bg-black/50 border border-white/10 pl-11 py-3 rounded-2xl focus:outline-none focus:border-[#d8b88a]"
+            className="w-full bg-white/5 border border-white/10 pl-9 pr-4 py-2.5 rounded-xl 
+            focus:outline-none focus:border-[#d8b88a]/50 focus:bg-white/10 transition"
           />
         </div>
 
-        <select
-          value={selectedCategory}
-          onChange={(e) => setSelectedCategory(e.target.value)}
-          className="bg-black/50 border border-white/10 px-5 py-3 rounded-2xl focus:outline-none"
-        >
-          {filterCategories.map(cat => (
-            <option key={cat} value={cat}>{cat}</option>
-          ))}
-        </select>
+        <div className="relative">
+  <button
+    onClick={() => setOpenCategory(!openCategory)}
+    className="
+      bg-[#0f0f0f] border border-white/10
+      px-4 py-2.5 rounded-xl text-sm
+      text-white flex items-center gap-2
+    "
+  >
+    {selectedCategory}
+    <span className="text-white/40">▾</span>
+  </button>
 
-        <select
-          value={sortOption}
-          onChange={(e) => setSortOption(e.target.value)}
-          className="bg-black/50 border border-white/10 px-5 py-3 rounded-2xl focus:outline-none"
+  {openCategory && (
+    <div className="
+      absolute mt-2 w-48 bg-[#0f0f0f]
+      border border-white/10 rounded-xl
+      overflow-hidden z-50
+    ">
+      {filterCategories.map(cat => (
+        <div
+          key={cat}
+          onClick={() => {
+            setSelectedCategory(cat);
+            setOpenCategory(false);
+          }}
+          className="px-4 py-2 hover:bg-white/10 cursor-pointer text-sm"
         >
-          <option value="newest">Newest First</option>
-          <option value="oldest">Oldest First</option>
-          <option value="az">A - Z</option>
-          <option value="za">Z - A</option>
-        </select>
-
-        <select
-          value={itemsPerPage}
-          onChange={(e) => setItemsPerPage(Number(e.target.value))}
-          className="bg-black/50 border border-white/10 px-5 py-3 rounded-2xl focus:outline-none"
-        >
-          <option value={10}>10 per page</option>
-          <option value={25}>25 per page</option>
-          <option value={50}>50 per page</option>
-          <option value={100}>100 per page</option>
-        </select>
+          {cat}
+        </div>
+      ))}
+    </div>
+  )}
+</div>
       </div>
 
       {/* Bulk Action Bar */}
       {selectedIds.length > 0 && (
         <div className="bg-red-500/10 border border-red-500/30 rounded-3xl p-4 flex items-center justify-between">
-          <span className="font-medium">{selectedIds.length} selected</span>
-          <button
-            onClick={handleBulkDelete}
-            className="flex items-center gap-2 bg-red-600 hover:bg-red-700 px-6 py-2.5 rounded-2xl text-white transition"
-          >
-            <Trash2 className="w-5 h-5" />
-            Delete Selected
-          </button>
+          
+          {/* Left side info */}
+          <div className="flex items-center gap-3">
+            <span className="font-medium">
+              {selectedIds.length} selected
+            </span>
+
+            <button
+              onClick={() => setSelectedIds([])}
+              className="text-sm text-white/60 hover:text-white transition"
+            >
+              Cancel
+            </button>
+          </div>
+
+          {/* Right side actions */}
+          <div className="flex items-center gap-3">
+            
+            <button
+              onClick={() => setSelectedIds([])}
+              className="px-5 py-2.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white transition"
+            >
+              Clear Selection
+            </button>
+
+            <button
+              onClick={handleBulkDelete}
+              className="flex items-center gap-2 bg-red-600 hover:bg-red-700 px-6 py-2.5 rounded-2xl text-white transition"
+            >
+              <Trash2 className="w-5 h-5" />
+              Delete Selected
+            </button>
+          </div>
         </div>
       )}
 
@@ -430,14 +503,14 @@ const submitHandler = async (e) => {
                   <div className="flex justify-end gap-3">
                     <button
                       onClick={() => openModal(item)}
-                      className="px-4 py-2 bg-white/10 hover:bg-white/20 rounded-xl flex items-center gap-2 transition"
+                      className="px-4 cursor-pointer py-2 bg-white/10 hover:bg-white/20 rounded-xl flex items-center gap-2 transition"
                     >
                       <Edit2 className="w-4 h-4" />
                       Edit
                     </button>
                     <button
                       onClick={() => openDeleteConfirm(item._id)}
-                      className="px-4 py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-xl transition"
+                      className="px-4 cursor-pointer py-2 bg-red-500/20 hover:bg-red-500/30 text-red-400 rounded-xl transition"
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
