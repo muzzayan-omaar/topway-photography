@@ -5,19 +5,19 @@ import {
   Image, 
   Star, 
   Settings, 
-  LogOut, 
   Bell, 
-  User,
+  LogOut,
   ChevronLeft,
   ChevronRight
 } from "lucide-react";
 
 import GalleryManager from "./GalleryManager";
+import HeroManager from "./HeroManager";
 
 export default function Dashboard() {
   const navigate = useNavigate();
   const [activeTab, setActiveTab] = useState("overview");
-  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true); // Default expanded
+  const [isSidebarExpanded, setIsSidebarExpanded] = useState(true);
 
   const logoutHandler = () => {
     localStorage.removeItem("adminToken");
@@ -76,74 +76,65 @@ export default function Dashboard() {
         </div>
       </header>
 
-      <div className="flex h-[calc(100vh-73px)]">
-        {/* Sidebar - Sticky & Collapsible */}
+      <div className="flex h-[calc(100vh-73px)] overflow-hidden">
+        {/* Sidebar */}
         <aside
-          className={`border-r border-white/10 bg-[#0a0a0a] transition-all duration-300 overflow-hidden flex-shrink-0
-            ${isSidebarExpanded ? "w-72" : "w-20"}`}
+          className={`border-r border-white/10 bg-[#0a0a0a] transition-all duration-300 flex-shrink-0 overflow-hidden
+            ${isSidebarExpanded ? "w-72" : "w-20 hover:w-72"}`}
+          onMouseEnter={() => !isSidebarExpanded && setIsSidebarExpanded(true)}
+          onMouseLeave={() => !isSidebarExpanded && setIsSidebarExpanded(false)}
         >
-          <div className="h-full flex flex-col">
-            <div className="p-6 flex-1 overflow-y-auto">
-              <nav className="space-y-2">
-                {tabs.map((tab) => {
-                  const Icon = tab.icon;
-                  const isActive = activeTab === tab.id;
+          <div className="h-full flex flex-col py-6">
+            <nav className="flex-1 px-3 space-y-1">
+              {tabs.map((tab) => {
+                const Icon = tab.icon;
+                const isActive = activeTab === tab.id;
 
-                  return (
-                    <button
-  key={tab.id}
-  onClick={() => setActiveTab(tab.id)}
-  className={`
-    w-full flex items-center rounded-2xl transition-all duration-200 group relative
-    ${isSidebarExpanded ? "gap-3 px-4 py-3.5" : "justify-center py-4"}
-    ${
-      isActive
-        ? "bg-[#d8b88a] text-black shadow-lg shadow-[#d8b88a]/20"
-        : "hover:bg-white/5 text-white/80 hover:text-white"
-    }
-  `}
->
-  <Icon
-    className={`w-5 h-5 flex-shrink-0 transition-transform duration-200 ${
-      !isSidebarExpanded ? "mx-auto" : ""
-    } ${!isActive && "group-hover:scale-110"}`}
-  />
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setActiveTab(tab.id)}
+                    className={`
+                      w-full flex items-center rounded-2xl py-3 transition-all duration-200 relative group/tab
+                      ${isSidebarExpanded ? "px-5 gap-3" : "justify-center"}
+                      ${isActive 
+                        ? "text-[#d8b88a]" 
+                        : "text-white/70 hover:text-white hover:bg-white/5"
+                      }
+                    `}
+                  >
+                    {/* Icon */}
+                    <div className="flex items-center justify-center w-5 h-5">
+                      <Icon 
+                        className={`w-5 h-5 transition-all duration-200 flex-shrink-0
+                          ${isActive ? "scale-110" : "group-hover/tab:scale-110"}`}
+                      />
+                    </div>
 
-  {/* Label */}
-  {isSidebarExpanded && (
-    <span className="font-medium whitespace-nowrap">
-      {tab.label}
-    </span>
-  )}
+                    {/* Label */}
+                    <span 
+                      className={`font-medium whitespace-nowrap transition-all duration-200 overflow-hidden
+                        ${isSidebarExpanded 
+                          ? "opacity-100 w-auto" 
+                          : "opacity-0 w-0"
+                        }`}
+                    >
+                      {tab.label}
+                    </span>
 
-  {/* Tooltip (only when collapsed) */}
-  {!isSidebarExpanded && (
-    <div className="absolute left-full ml-3 px-3 py-2 bg-[#1a1a1a] text-sm rounded-xl opacity-0 group-hover:opacity-100 pointer-events-none transition whitespace-nowrap z-50">
-      {tab.label}
-    </div>
-  )}
-</button>
-                  );
-                })}
-              </nav>
-            </div>
-
-            {/* Sidebar Footer */}
-            <div className="p-6 border-t border-white/10 mt-auto">
-              <button
-                onClick={logoutHandler}
-                className="w-full flex items-center gap-3 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-2xl transition"
-              >
-                <LogOut className="w-5 h-5" />
-                {isSidebarExpanded && <span className="font-medium">Logout</span>}
-              </button>
-            </div>
+                    {/* Active Indicator */}
+                    {isActive && (
+                      <div className="absolute left-0 top-1/2 -translate-y-1/2 w-1 h-8 bg-[#d8b88a] rounded-r-full" />
+                    )}
+                  </button>
+                );
+              })}
+            </nav>
           </div>
         </aside>
 
-        {/* Main Content Area */}
+        {/* Main Content */}
         <main className="flex-1 overflow-auto bg-[#080808] p-6 lg:p-8">
-          {/* Page Header */}
           <div className="mb-10">
             <h2 className="text-4xl font-serif capitalize">
               {tabs.find(t => t.id === activeTab)?.label}
@@ -151,7 +142,6 @@ export default function Dashboard() {
             <p className="text-white/50 mt-1">Manage your website content</p>
           </div>
 
-          {/* Content */}
           {activeTab === "overview" && (
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               <div className="bg-white/5 border border-white/10 rounded-3xl p-8">
@@ -175,15 +165,7 @@ export default function Dashboard() {
 
           {activeTab === "gallery" && <GalleryManager />}
 
-          {activeTab === "hero" && (
-            <div className="bg-white/5 border border-white/10 rounded-3xl p-10 text-center">
-              <h3 className="text-2xl mb-4">Hero Section Manager</h3>
-              <p className="text-white/60 mb-8">Manage your homepage hero carousel / banner content</p>
-              <button className="px-8 py-4 bg-[#d8b88a] text-black rounded-2xl font-medium hover:scale-105 transition">
-                + Add New Slide
-              </button>
-            </div>
-          )}
+          {activeTab === "hero" && <HeroManager />}
 
           {activeTab === "testimonials" && (
             <div className="bg-white/5 border border-white/10 rounded-3xl p-10 text-center">
