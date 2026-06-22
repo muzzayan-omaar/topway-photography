@@ -8,11 +8,13 @@ import {
   Bell, 
   LogOut,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  Users,
 } from "lucide-react";
 
 import GalleryManager from "./GalleryManager";
 import HeroManager from "./HeroManager";
+import ClientManager from "../components/ClientManager";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -28,6 +30,7 @@ export default function Dashboard() {
     { id: "overview", label: "Overview", icon: LayoutDashboard },
     { id: "gallery", label: "Gallery", icon: Image },
     { id: "hero", label: "Hero Section", icon: Image },
+    { id: "clients", label: "Client Manager", icon: Users},
     { id: "testimonials", label: "Testimonials", icon: Star },
     { id: "settings", label: "Settings", icon: Settings },
   ];
@@ -134,6 +137,7 @@ export default function Dashboard() {
 
           {activeTab === "gallery" && <GalleryManager />}
           {activeTab === "hero" && <HeroManager />}
+          {activeTab === "clients" && <ClientManager />}
 
           {/* Other tabs remain the same */}
           {activeTab === "overview" && (
