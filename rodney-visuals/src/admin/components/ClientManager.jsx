@@ -427,7 +427,7 @@ const closeModal = () => {
           <button
   type="submit"
   disabled={loading}
-  className="flex-1 py-3 bg-[#d8b88a] hover:bg-[#c9a675] text-black rounded-2xl font-medium transition disabled:opacity-50"
+  className="flex-1 cursor-pointer py-3 bg-[#d8b88a] hover:bg-[#c9a675] text-black rounded-2xl font-medium transition disabled:opacity-50"
 >
   {loading
     ? "Processing..."
