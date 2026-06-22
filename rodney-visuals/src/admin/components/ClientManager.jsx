@@ -206,7 +206,7 @@ const closeModal = () => {
 
         <button
             onClick={() => setIsModalOpen(true)}
-            className="flex items-center gap-3 px-6 py-3.5 bg-[#d8b88a] hover:bg-[#c9a675] text-black rounded-2xl font-medium transition"
+            className="flex cursor-pointer items-center gap-3 px-6 py-3.5 bg-[#d8b88a] hover:bg-[#c9a675] text-black rounded-2xl font-medium transition"
         >
             <Plus className="w-5 h-5" />
             New Client
@@ -273,7 +273,7 @@ const closeModal = () => {
       <td className="p-6">
         <button
   onClick={() => copyPortalLink(client.slug)}
-  className="flex items-center gap-2 text-[#d8b88a]"
+  className="flex cursor-pointer items-center gap-2 text-[#d8b88a]"
 >
           <Copy className="w-4 h-4" />
           Copy Link
@@ -281,7 +281,7 @@ const closeModal = () => {
       </td>
 
       <td className="p-6">
-        <div className="flex justify-end gap-3">
+        <div className="cursor-pointer flex justify-end gap-3">
           <button
   onClick={() => openEdit(client)}
   className="px-4 py-2 bg-white/10 rounded-xl"
@@ -292,7 +292,7 @@ const closeModal = () => {
           <button
   onClick={() => deleteClient(client._id)}
   disabled={actionLoading === client._id}
-  className="px-4 py-2 bg-red-500/20 text-red-400 rounded-xl disabled:opacity-50"
+  className="cursor-pointer px-4 py-2 bg-red-500/20 text-red-400 rounded-xl disabled:opacity-50"
 >
   {actionLoading === client._id ? "..." : <Trash2 className="w-4 h-4" />}
 </button>
@@ -322,7 +322,7 @@ const closeModal = () => {
 
     <button
       onClick={() => setIsModalOpen(true)}
-      className="flex items-center gap-3 px-6 py-3 bg-[#d8b88a] text-black rounded-2xl font-medium hover:bg-[#c9a675] transition"
+      className="flex cursor-pointer items-center gap-3 px-6 py-3 bg-[#d8b88a] text-black rounded-2xl font-medium hover:bg-[#c9a675] transition"
     >
       <Plus className="w-5 h-5" />
       Create First Client
@@ -344,7 +344,7 @@ const closeModal = () => {
 
         <button
           onClick={() => setIsModalOpen(false)}
-          className="p-2 hover:bg-white/10 rounded-xl transition"
+          className="p-2 cursor-pointer hover:bg-white/10 rounded-xl transition"
         >
           <X className="w-5 h-5" />
         </button>
@@ -419,7 +419,7 @@ const closeModal = () => {
           <button
             type="button"
             onClick={closeModal}
-            className="flex-1 py-3 bg-white/10 hover:bg-white/20 rounded-2xl transition"
+            className="flex-1 py-3 cursor-pointer bg-white/10 hover:bg-white/20 rounded-2xl transition"
           >
             Cancel
           </button>
