@@ -14,8 +14,12 @@ import { API_URL } from "../../config/api";
 export default function ClientManager() {
   const [clients, setClients] = useState([]);
   const [filteredClients, setFilteredClients] = useState([]);
-
+  const [loading, setLoading] = useState(false);
+  const [actionLoading, setActionLoading] = useState(null); 
+  const [editingClient, setEditingClient] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
+  const [tableLoading, setTableLoading] = useState(false);
+const [formLoading, setFormLoading] = useState(false);
 
   const [isModalOpen, setIsModalOpen] = useState(false);
 
@@ -49,29 +53,33 @@ export default function ClientManager() {
       });
     }, 3000);
   };
+const openEdit = (client) => {
+  setFormData(client);
+  setEditingClient(client._id);
+  setIsModalOpen(true);
+
+};
+
 
   const fetchClients = async () => {
+  setTableLoading(true);
+
   try {
     const token = localStorage.getItem("adminToken");
 
-    const { data } = await axios.get(
-      `${API_URL}/api/clients`,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    const { data } = await axios.get(`${API_URL}/api/clients`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
 
     setClients(data);
     setFilteredClients(data);
   } catch (error) {
     console.error(error);
-
-    showToast(
-      "Failed to fetch clients",
-      "error"
-    );
+    showToast("Failed to fetch clients", "error");
+  } finally {
+    setLoading(false);
   }
 };
 
@@ -102,23 +110,29 @@ const handleChange = (e) => {
 
 const createClient = async (e) => {
   e.preventDefault();
+  setFormLoading(true);
 
   try {
     const token = localStorage.getItem("adminToken");
 
-    await axios.post(
-      `${API_URL}/api/clients`,
-      formData,
-      {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      }
-    );
+    if (editingClient) {
+      await axios.put(
+        `${API_URL}/api/clients/${editingClient}`,
+        formData,
+        { headers: { Authorization: `Bearer ${token}` } }
+      );
 
-    showToast("Client created successfully");
+      showToast("Client updated");
+    } else {
+      await axios.post(`${API_URL}/api/clients`, formData, {
+        headers: { Authorization: `Bearer ${token}` },
+      });
+
+      showToast("Client created");
+    }
 
     setIsModalOpen(false);
+    setEditingClient(null);
 
     setFormData({
       name: "",
@@ -131,28 +145,64 @@ const createClient = async (e) => {
 
     fetchClients();
   } catch (error) {
-    console.error(error);
-
-    showToast(
-      error.response?.data?.message ||
-        "Failed to create client",
-      "error"
-    );
+    showToast(error.response?.data?.message || "Failed", "error");
+  } finally {
+    setLoading(false);
   }
 };
+const copyPortalLink = (slug) => {
+  const link = `${window.location.origin}/client/${slug}`;
 
+  navigator.clipboard.writeText(link);
+
+  showToast("Portal link copied");
+};
+const deleteClient = async (id) => {
+  if (!window.confirm("Delete this client?")) return;
+
+  setActionLoading(id);
+
+  try {
+    const token = localStorage.getItem("adminToken");
+
+    await axios.delete(`${API_URL}/api/clients/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+
+    showToast("Client deleted");
+    fetchClients();
+  } catch (error) {
+    console.error(error);
+    showToast("Failed to delete client", "error");
+  } finally {
+    setActionLoading(null);
+  }
+};
+if (loading) {
+  return (
+    <div className="text-center py-20 text-white/50">
+      Loading clients...
+    </div>
+  );
+}
+const closeModal = () => {
+  setIsModalOpen(false);
+  setEditingClient(null);
+  setFormData({
+    name: "",
+    email: "",
+    phone: "",
+    projectName: "",
+    slug: "",
+    password: "",
+  });
+};
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row justify-between gap-4">
-        <div>
-            <h2 className="text-4xl font-serif">
-            Client Manager
-            </h2>
 
-            <p className="text-white/50 mt-1">
-            Manage client projects and portals
-            </p>
-        </div>
 
         <button
             onClick={() => setIsModalOpen(true)}
@@ -179,6 +229,7 @@ const createClient = async (e) => {
 
   {/* Clients Table */}
   <div className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden">
+  
     <table className="w-full">
       <thead>
         <tr className="border-b border-white/10">
@@ -191,6 +242,7 @@ const createClient = async (e) => {
       </thead>
 
       <tbody>
+        
   {filteredClients.map((client) => (
     <tr
       key={client._id}
@@ -219,7 +271,10 @@ const createClient = async (e) => {
       </td>
 
       <td className="p-6">
-        <button className="flex items-center gap-2 text-[#d8b88a]">
+        <button
+  onClick={() => copyPortalLink(client.slug)}
+  className="flex items-center gap-2 text-[#d8b88a]"
+>
           <Copy className="w-4 h-4" />
           Copy Link
         </button>
@@ -227,13 +282,20 @@ const createClient = async (e) => {
 
       <td className="p-6">
         <div className="flex justify-end gap-3">
-          <button className="px-4 py-2 bg-white/10 rounded-xl">
+          <button
+  onClick={() => openEdit(client)}
+  className="px-4 py-2 bg-white/10 rounded-xl"
+>
             <Edit2 className="w-4 h-4" />
           </button>
 
-          <button className="px-4 py-2 bg-red-500/20 text-red-400 rounded-xl">
-            <Trash2 className="w-4 h-4" />
-          </button>
+          <button
+  onClick={() => deleteClient(client._id)}
+  disabled={actionLoading === client._id}
+  className="px-4 py-2 bg-red-500/20 text-red-400 rounded-xl disabled:opacity-50"
+>
+  {actionLoading === client._id ? "..." : <Trash2 className="w-4 h-4" />}
+</button>
         </div>
       </td>
     </tr>
@@ -356,18 +418,23 @@ const createClient = async (e) => {
         <div className="md:col-span-2 flex gap-4 pt-4">
           <button
             type="button"
-            onClick={() => setIsModalOpen(false)}
+            onClick={closeModal}
             className="flex-1 py-3 bg-white/10 hover:bg-white/20 rounded-2xl transition"
           >
             Cancel
           </button>
 
           <button
-            type="submit"
-            className="flex-1 py-3 bg-[#d8b88a] hover:bg-[#c9a675] text-black rounded-2xl font-medium transition"
-          >
-            Create Client
-          </button>
+  type="submit"
+  disabled={loading}
+  className="flex-1 py-3 bg-[#d8b88a] hover:bg-[#c9a675] text-black rounded-2xl font-medium transition disabled:opacity-50"
+>
+  {loading
+    ? "Processing..."
+    : editingClient
+    ? "Update Client"
+    : "Create Client"}
+</button>
         </div>
       </form>
 
