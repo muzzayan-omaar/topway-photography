@@ -284,7 +284,7 @@ const closeModal = () => {
         <div className="cursor-pointer flex justify-end gap-3">
           <button
   onClick={() => openEdit(client)}
-  className="px-4 py-2 bg-white/10 rounded-xl"
+  className="px-4 https://topway-photography.vercel.app/client/muzzayanomaar py-2 bg-white/10 rounded-xl"
 >
             <Edit2 className="w-4 h-4" />
           </button>
