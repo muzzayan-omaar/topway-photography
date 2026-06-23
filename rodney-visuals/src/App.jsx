@@ -16,6 +16,9 @@ import Login from "./admin/pages/Login";
 import Dashboard from "./admin/pages/Dashboard";
 import ProtectedRoute from "./admin/components/ProtectedRoute";
 
+import ClientLogin from "./pages/client/ClientLogin";
+import ClientDashboard from "./pages/client/ClientDashboard";
+
 function HomePage() {
   return (
     <>
@@ -53,6 +56,16 @@ function App() {
             <Dashboard />
           </ProtectedRoute>
         }
+      />
+
+      <Route
+        path="/client/:slug"
+        element={<ClientLogin />}
+      />
+
+      <Route
+        path="/client/:slug/dashboard"
+        element={<ClientDashboard />}
       />
     </Routes>
   );

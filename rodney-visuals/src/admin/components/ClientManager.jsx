@@ -14,7 +14,6 @@ import { API_URL } from "../../config/api";
 export default function ClientManager() {
   const [clients, setClients] = useState([]);
   const [filteredClients, setFilteredClients] = useState([]);
-  const [loading, setLoading] = useState(false);
   const [actionLoading, setActionLoading] = useState(null); 
   const [editingClient, setEditingClient] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
@@ -30,6 +29,7 @@ const [formLoading, setFormLoading] = useState(false);
     projectName: "",
     slug: "",
     password: "",
+    status: "Booked",
   });
 
   const [toast, setToast] = useState({
@@ -54,7 +54,15 @@ const [formLoading, setFormLoading] = useState(false);
     }, 3000);
   };
 const openEdit = (client) => {
-  setFormData(client);
+  setFormData({
+  name: client.name || "",
+  email: client.email || "",
+  phone: client.phone || "",
+  projectName: client.projectName || "",
+  slug: client.slug || "",
+  password: "",
+  status: client.status || "Booked",
+});
   setEditingClient(client._id);
   setIsModalOpen(true);
 
@@ -79,7 +87,7 @@ const openEdit = (client) => {
     console.error(error);
     showToast("Failed to fetch clients", "error");
   } finally {
-    setLoading(false);
+    setTableLoading(false);
   }
 };
 
@@ -135,27 +143,21 @@ const createClient = async (e) => {
     setEditingClient(null);
 
     setFormData({
-      name: "",
-      email: "",
-      phone: "",
-      projectName: "",
-      slug: "",
-      password: "",
-    });
+  name: "",
+  email: "",
+  phone: "",
+  projectName: "",
+  slug: "",
+  password: "",
+  status: "Booked",
+});
 
     fetchClients();
   } catch (error) {
     showToast(error.response?.data?.message || "Failed", "error");
   } finally {
-    setLoading(false);
+    setFormLoading(false);
   }
-};
-const copyPortalLink = (slug) => {
-  const link = `${window.location.origin}/client/${slug}`;
-
-  navigator.clipboard.writeText(link);
-
-  showToast("Portal link copied");
 };
 const deleteClient = async (id) => {
   if (!window.confirm("Delete this client?")) return;
@@ -180,13 +182,6 @@ const deleteClient = async (id) => {
     setActionLoading(null);
   }
 };
-if (loading) {
-  return (
-    <div className="text-center py-20 text-white/50">
-      Loading clients...
-    </div>
-  );
-}
 const closeModal = () => {
   setIsModalOpen(false);
   setEditingClient(null);
@@ -197,7 +192,43 @@ const closeModal = () => {
     projectName: "",
     slug: "",
     password: "",
+    status: "Booked",
   });
+};
+
+const copyPortalLink = async (slug) => {
+  try {
+    const portalUrl = `${window.location.origin}/client/${slug}`;
+
+    await navigator.clipboard.writeText(portalUrl);
+
+    showToast("Portal link copied");
+  } catch (error) {
+    console.error(error);
+    showToast("Failed to copy link", "error");
+  }
+};
+
+const getStatusClass = (status) => {
+  switch (status) {
+    case "Booked":
+      return "bg-blue-500/20 text-blue-400";
+
+    case "In Progress":
+      return "bg-yellow-500/20 text-yellow-400";
+
+    case "Editing":
+      return "bg-purple-500/20 text-purple-400";
+
+    case "Ready":
+      return "bg-green-500/20 text-green-400";
+
+    case "Delivered":
+      return "bg-emerald-500/20 text-emerald-400";
+
+    default:
+      return "bg-white/10 text-white";
+  }
 };
   return (
     <div className="space-y-8">
@@ -265,20 +296,33 @@ const closeModal = () => {
       </td>
 
       <td className="p-6">
-        <span className="px-3 py-1 rounded-full text-xs bg-yellow-500/20 text-yellow-400">
-          {client.status}
-        </span>
+        <span
+  className={`px-3 py-1 rounded-full text-xs ${getStatusClass(client.status)}`}
+>
+  {client.status}
+</span>
       </td>
 
       <td className="p-6">
-        <button
-  onClick={() => copyPortalLink(client.slug)}
-  className="flex cursor-pointer items-center gap-2 text-[#d8b88a]"
->
-          <Copy className="w-4 h-4" />
-          Copy Link
-        </button>
-      </td>
+  <div className="flex items-center gap-3">
+    <button
+      onClick={() => copyPortalLink(client.slug)}
+      className="flex items-center gap-2 text-[#d8b88a] hover:text-[#f0d5af] transition"
+    >
+      <Copy className="w-4 h-4" />
+      Copy
+    </button>
+
+    <a
+      href={`/client/${client.slug}`}
+      target="_blank"
+      rel="noreferrer"
+      className="px-3 py-1 bg-blue-500/20 text-blue-400 rounded-lg hover:bg-blue-500/30 transition"
+    >
+      View
+    </a>
+  </div>
+</td>
 
       <td className="p-6">
         <div className=" flex justify-end gap-3">
@@ -339,11 +383,11 @@ const closeModal = () => {
       {/* Header */}
       <div className="flex items-center justify-between p-6 border-b border-white/10">
         <h3 className="text-2xl font-medium">
-          Create New Client
-        </h3>
+  {editingClient ? "Edit Client" : "Create New Client"}
+</h3>
 
         <button
-          onClick={() => setIsModalOpen(false)}
+          onClick={closeModal}
           className="p-2 cursor-pointer hover:bg-white/10 rounded-xl transition"
         >
           <X className="w-5 h-5" />
@@ -426,14 +470,14 @@ const closeModal = () => {
 
           <button
   type="submit"
-  disabled={loading}
+  disabled={formLoading}
   className="flex-1 cursor-pointer py-3 bg-[#d8b88a] hover:bg-[#c9a675] text-black rounded-2xl font-medium transition disabled:opacity-50"
 >
-  {loading
-    ? "Processing..."
-    : editingClient
-    ? "Update Client"
-    : "Create Client"}
+  {formLoading
+  ? "Processing..."
+  : editingClient
+  ? "Update Client"
+  : "Create Client"}
 </button>
         </div>
       </form>
