@@ -30,6 +30,8 @@ const [formLoading, setFormLoading] = useState(false);
     slug: "",
     password: "",
     status: "Booked",
+    coverImage: "",
+    expectedDelivery: "",
   });
 
   const [toast, setToast] = useState({
@@ -62,6 +64,9 @@ const openEdit = (client) => {
   slug: client.slug || "",
   password: "",
   status: client.status || "Booked",
+    coverImage: client.coverImage || "",
+  expectedDelivery:
+    client.expectedDelivery || "",
 });
   setEditingClient(client._id);
   setIsModalOpen(true);
@@ -214,13 +219,13 @@ const getStatusClass = (status) => {
     case "Booked":
       return "bg-blue-500/20 text-blue-400";
 
-    case "In Progress":
+    case "Coverage Complete":
       return "bg-yellow-500/20 text-yellow-400";
 
     case "Editing":
       return "bg-purple-500/20 text-purple-400";
 
-    case "Ready":
+    case "Ready For Delivery":
       return "bg-green-500/20 text-green-400";
 
     case "Delivered":
@@ -260,8 +265,13 @@ const getStatusClass = (status) => {
 
   {/* Clients Table */}
   <div className="bg-white/5 border border-white/10 rounded-3xl overflow-hidden">
-  
-    <table className="w-full">
+    
+    {tableLoading ? (
+  <div className="py-20 text-center text-white/50">
+    Loading clients...
+  </div>
+) : (
+      <table className="w-full">
       <thead>
         <tr className="border-b border-white/10">
           <th className="text-left p-6">Client</th>
@@ -346,6 +356,10 @@ const getStatusClass = (status) => {
   ))}
 </tbody>
     </table>
+  // existing table
+)}
+
+
 
     
   </div>
@@ -365,7 +379,21 @@ const getStatusClass = (status) => {
     </p>
 
     <button
-      onClick={() => setIsModalOpen(true)}
+      onClick={() => {
+  setEditingClient(null);
+
+  setFormData({
+    name: "",
+    email: "",
+    phone: "",
+    projectName: "",
+    slug: "",
+    password: "",
+    status: "Booked",
+  });
+
+  setIsModalOpen(true);
+}}
       className="flex cursor-pointer items-center gap-3 px-6 py-3 bg-[#d8b88a] text-black rounded-2xl font-medium hover:bg-[#c9a675] transition"
     >
       <Plus className="w-5 h-5" />
@@ -456,6 +484,51 @@ const getStatusClass = (status) => {
           value={formData.password}
           onChange={handleChange}
           required
+          className="px-4 py-3 bg-white/5 border border-white/10 rounded-2xl focus:outline-none focus:border-[#d8b88a]"
+        />
+
+        <select
+          name="status"
+          value={formData.status}
+          onChange={handleChange}
+          className="px-4 py-3 bg-white/5 border border-white/10 rounded-2xl focus:outline-none focus:border-[#d8b88a]"
+        >
+          <option value="Booked">
+            Booked
+          </option>
+
+          <option value="Coverage Complete">
+            Coverage Complete
+          </option>
+
+          <option value="Editing">
+            Editing
+          </option>
+
+          <option value="Ready For Delivery">
+            Ready For Delivery
+          </option>
+
+          <option value="Delivered">
+            Delivered
+          </option>
+        </select>
+
+        <input
+          type="text"
+          name="coverImage"
+          placeholder="Cover Image URL"
+          value={formData.coverImage}
+          onChange={handleChange}
+          className="px-4 py-3 bg-white/5 border border-white/10 rounded-2xl focus:outline-none focus:border-[#d8b88a]"
+        />
+
+        <input
+          type="text"
+          name="expectedDelivery"
+          placeholder="Expected Delivery Date"
+          value={formData.expectedDelivery}
+          onChange={handleChange}
           className="px-4 py-3 bg-white/5 border border-white/10 rounded-2xl focus:outline-none focus:border-[#d8b88a]"
         />
 
