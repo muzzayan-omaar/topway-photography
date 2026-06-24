@@ -173,7 +173,29 @@ const currentStepIndex =
 
           {client.status === "Delivered" || (client.files?.length > 0) ? (
             <div className="px-8 space-y-4">
-              {/* Files will go here */}
+              <div className="space-y-4">
+  {client.files?.map((file) => (
+    <a
+      key={file.url}
+      href={file.url}
+      target="_blank"
+      rel="noreferrer"
+      className="flex items-center justify-between p-5 bg-black/40 border border-white/10 rounded-2xl hover:border-[#d8b88a]/50 transition"
+    >
+      <div>
+        <h4 className="font-medium">
+          {file.name}
+        </h4>
+
+        <p className="text-white/50 text-sm">
+          {file.size}
+        </p>
+      </div>
+
+      <Download className="text-[#d8b88a]" />
+    </a>
+  ))}
+</div>
             </div>
           ) : (
             <div className="mx-8 bg-black/60 border border-dashed border-white/30 rounded-3xl py-16 text-center">

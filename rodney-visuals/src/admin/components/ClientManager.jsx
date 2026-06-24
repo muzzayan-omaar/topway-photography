@@ -18,8 +18,8 @@ export default function ClientManager() {
   const [editingClient, setEditingClient] = useState(null);
   const [searchTerm, setSearchTerm] = useState("");
   const [tableLoading, setTableLoading] = useState(false);
-const [formLoading, setFormLoading] = useState(false);
-
+  const [formLoading, setFormLoading] = useState(false);
+  const [selectedFiles, setSelectedFiles] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
   const [formData, setFormData] = useState({
@@ -129,37 +129,81 @@ const createClient = async (e) => {
     const token = localStorage.getItem("adminToken");
 
     if (editingClient) {
+
       await axios.put(
         `${API_URL}/api/clients/${editingClient}`,
         formData,
-        { headers: { Authorization: `Bearer ${token}` } }
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
       );
 
+      // Upload files if selected
+      if (selectedFiles.length > 0) {
+        const fileData = new FormData();
+
+        selectedFiles.forEach((file) => {
+          fileData.append("files", file);
+        });
+
+        await axios.post(
+          `${API_URL}/api/clients/${editingClient}/files`,
+          fileData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      }
+
       showToast("Client updated");
+
     } else {
-      await axios.post(`${API_URL}/api/clients`, formData, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+
+      const { data } = await axios.post(
+        `${API_URL}/api/clients`,
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      );
+
+      // Upload files immediately after creation
+      if (selectedFiles.length > 0) {
+        const fileData = new FormData();
+
+        selectedFiles.forEach((file) => {
+          fileData.append("files", file);
+        });
+
+        await axios.post(
+          `${API_URL}/api/clients/${data._id}/files`,
+          fileData,
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+      }
 
       showToast("Client created");
     }
 
-    setIsModalOpen(false);
-    setEditingClient(null);
-
-    setFormData({
-  name: "",
-  email: "",
-  phone: "",
-  projectName: "",
-  slug: "",
-  password: "",
-  status: "Booked",
-});
-
+    setSelectedFiles([]);
+    closeModal();
     fetchClients();
+
   } catch (error) {
-    showToast(error.response?.data?.message || "Failed", "error");
+    showToast(
+      error.response?.data?.message || "Failed",
+      "error"
+    );
   } finally {
     setFormLoading(false);
   }
@@ -190,6 +234,7 @@ const deleteClient = async (id) => {
 const closeModal = () => {
   setIsModalOpen(false);
   setEditingClient(null);
+  setSelectedFiles([]);
   setFormData({
     name: "",
     email: "",
@@ -198,6 +243,8 @@ const closeModal = () => {
     slug: "",
     password: "",
     status: "Booked",
+    coverImage: "",
+    expectedDelivery: "",
   });
 };
 
@@ -241,7 +288,23 @@ const getStatusClass = (status) => {
 
 
         <button
-            onClick={() => setIsModalOpen(true)}
+            onClick={() => {
+  setEditingClient(null);
+  setSelectedFiles([]);
+  setFormData({
+    name: "",
+    email: "",
+    phone: "",
+    projectName: "",
+    slug: "",
+    password: "",
+    status: "Booked",
+    coverImage: "",
+    expectedDelivery: "",
+  });
+
+  setIsModalOpen(true);
+}}
             className="flex cursor-pointer items-center gap-3 px-6 py-3.5 bg-[#d8b88a] hover:bg-[#c9a675] text-black rounded-2xl font-medium transition"
         >
             <Plus className="w-5 h-5" />
@@ -390,6 +453,8 @@ const getStatusClass = (status) => {
     slug: "",
     password: "",
     status: "Booked",
+    coverImage: "",
+  expectedDelivery: "",
   });
 
   setIsModalOpen(true);
@@ -531,6 +596,42 @@ const getStatusClass = (status) => {
           onChange={handleChange}
           className="px-4 py-3 bg-white/5 border border-white/10 rounded-2xl focus:outline-none focus:border-[#d8b88a]"
         />
+
+        <div className="md:col-span-2">
+          <label className="block mb-2 text-sm text-white/70">
+            Deliverables
+          </label>
+
+          <input
+            type="file"
+            multiple
+            onChange={(e) =>
+              setSelectedFiles([...e.target.files])
+            }
+            className="w-full"
+          />
+        </div>
+        {editingClient && (
+  <div className="md:col-span-2">
+    <p className="mb-2 text-sm text-white/70">
+      Uploaded Deliverables
+    </p>
+
+    {clients
+      .find(c => c._id === editingClient)
+      ?.files?.map(file => (
+        <a
+          key={file.url}
+          href={file.url}
+          target="_blank"
+          rel="noreferrer"
+          className="block text-[#d8b88a]"
+        >
+          {file.name}
+        </a>
+      ))}
+  </div>
+)}
 
         <div className="md:col-span-2 flex gap-4 pt-4">
           <button
