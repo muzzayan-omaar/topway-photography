@@ -21,6 +21,7 @@ export default function ClientManager() {
   const [formLoading, setFormLoading] = useState(false);
   const [selectedFiles, setSelectedFiles] = useState([]);
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [uploadProgress, setUploadProgress] = useState(0);
 
   const [formData, setFormData] = useState({
     name: "",
@@ -149,14 +150,23 @@ const createClient = async (e) => {
         });
 
         await axios.post(
-          `${API_URL}/api/clients/${editingClient}/files`,
-          fileData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+  `${API_URL}/api/clients/${editingClient}/files`,
+  fileData,
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+
+    onUploadProgress: (progressEvent) => {
+      const percent = Math.round(
+        (progressEvent.loaded * 100) /
+        progressEvent.total
+      );
+
+      setUploadProgress(percent);
+    },
+  }
+);
       }
 
       showToast("Client updated");
@@ -182,14 +192,23 @@ const createClient = async (e) => {
         });
 
         await axios.post(
-          `${API_URL}/api/clients/${data._id}/files`,
-          fileData,
-          {
-            headers: {
-              Authorization: `Bearer ${token}`,
-            },
-          }
-        );
+  `${API_URL}/api/clients/${editingClient}/files`,
+  fileData,
+  {
+    headers: {
+      Authorization: `Bearer ${token}`,
+    },
+
+    onUploadProgress: (progressEvent) => {
+      const percent = Math.round(
+        (progressEvent.loaded * 100) /
+        progressEvent.total
+      );
+
+      setUploadProgress(percent);
+    },
+  }
+);
       }
 
       showToast("Client created");
@@ -235,6 +254,7 @@ const closeModal = () => {
   setIsModalOpen(false);
   setEditingClient(null);
   setSelectedFiles([]);
+  setUploadProgress(0);
   setFormData({
     name: "",
     email: "",
@@ -644,6 +664,23 @@ const deleteFile = async (clientId, fileUrl) => {
             }
             className="w-full"
           />
+          {uploadProgress > 0 && uploadProgress < 100 && (
+  <div className="mt-4">
+    <div className="flex justify-between text-sm mb-2">
+      <span>Uploading files...</span>
+      <span>{uploadProgress}%</span>
+    </div>
+
+    <div className="h-3 bg-white/10 rounded-full overflow-hidden">
+      <div
+        className="h-full bg-[#d8b88a] transition-all"
+        style={{
+          width: `${uploadProgress}%`,
+        }}
+      />
+    </div>
+  </div>
+)}
         </div>
         {editingClient && (
   <div className="md:col-span-2">
