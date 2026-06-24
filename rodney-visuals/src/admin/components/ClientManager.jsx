@@ -366,6 +366,7 @@ const deleteFile = async (clientId, fileUrl) => {
         <tr className="border-b border-white/10">
           <th className="text-left p-6">Client</th>
           <th className="text-left p-6">Project</th>
+          <th className="text-left p-6">Files</th>
           <th className="text-left p-6">Status</th>
           <th className="text-left p-6">Portal</th>
           <th className="text-right p-6">Actions</th>
@@ -394,6 +395,12 @@ const deleteFile = async (clientId, fileUrl) => {
       <td className="p-6">
         {client.projectName}
       </td>
+
+      <td className="p-6">
+  <span className="px-3 py-1 rounded-full bg-white/10 text-white">
+    {client.files?.length || 0}
+  </span>
+</td>
 
       <td className="p-6">
         <span
