@@ -282,6 +282,33 @@ const getStatusClass = (status) => {
       return "bg-white/10 text-white";
   }
 };
+
+const deleteFile = async (clientId, fileUrl) => {
+  if (!window.confirm("Delete this file?")) return;
+
+  try {
+    const token = localStorage.getItem("adminToken");
+
+    await axios.delete(
+      `${API_URL}/api/clients/${clientId}/files`,
+      {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        data: {
+          url: fileUrl,
+        },
+      }
+    );
+
+    showToast("File deleted");
+
+    fetchClients();
+  } catch (error) {
+    console.error(error);
+    showToast("Failed to delete file", "error");
+  }
+};
   return (
     <div className="space-y-8">
       <div className="flex flex-col md:flex-row justify-between gap-4">
@@ -620,15 +647,28 @@ const getStatusClass = (status) => {
     {clients
       .find(c => c._id === editingClient)
       ?.files?.map(file => (
-        <a
-          key={file.url}
-          href={file.url}
-          target="_blank"
-          rel="noreferrer"
-          className="block text-[#d8b88a]"
-        >
-          {file.name}
-        </a>
+        <div
+  key={file.url}
+  className="flex items-center justify-between py-2"
+>
+  <a
+    href={file.url}
+    target="_blank"
+    rel="noreferrer"
+    className="text-[#d8b88a]"
+  >
+    {file.name}
+  </a>
+
+  <button
+    onClick={() =>
+      deleteFile(editingClient, file.url)
+    }
+    className="text-red-400 hover:text-red-300"
+  >
+    <Trash2 size={16} />
+  </button>
+</div>
       ))}
   </div>
 )}
