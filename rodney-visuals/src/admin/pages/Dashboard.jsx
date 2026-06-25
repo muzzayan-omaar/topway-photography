@@ -15,6 +15,7 @@ import {
 import GalleryManager from "./GalleryManager";
 import HeroManager from "./HeroManager";
 import ClientManager from "../components/ClientManager";
+import TestimonialManager from "../components/TestimonialManager";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -138,6 +139,7 @@ export default function Dashboard() {
           {activeTab === "gallery" && <GalleryManager />}
           {activeTab === "hero" && <HeroManager />}
           {activeTab === "clients" && <ClientManager />}
+          {activeTab === "testimonials" && <TestimonialManager />}
 
           {/* Other tabs remain the same */}
           {activeTab === "overview" && (
