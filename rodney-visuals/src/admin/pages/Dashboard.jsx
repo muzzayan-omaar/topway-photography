@@ -16,6 +16,8 @@ import GalleryManager from "./GalleryManager";
 import HeroManager from "./HeroManager";
 import ClientManager from "../components/ClientManager";
 import TestimonialManager from "../components/TestimonialManager";
+import DashboardOverview from "../components/DashboardOverview";
+import SettingsManager from "../components/SettingsManager";
 
 export default function Dashboard() {
   const navigate = useNavigate();
@@ -129,24 +131,16 @@ export default function Dashboard() {
 
         {/* Main Content - High z-index + pointer events protection */}
         <main className="flex-1 overflow-auto bg-[#080808] p-6 lg:p-8 min-w-0 relative z-10 pointer-events-auto">
-          <div className="mb-10">
-            <h2 className="text-4xl font-serif capitalize">
-              {tabs.find(t => t.id === activeTab)?.label}
-            </h2>
-            <p className="text-white/50 mt-1">Manage your website content</p>
-          </div>
+          
 
           {activeTab === "gallery" && <GalleryManager />}
           {activeTab === "hero" && <HeroManager />}
           {activeTab === "clients" && <ClientManager />}
           {activeTab === "testimonials" && <TestimonialManager />}
+          {activeTab === "settings" && <SettingsManager />}
 
           {/* Other tabs remain the same */}
-          {activeTab === "overview" && (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-              {/* your cards */}
-            </div>
-          )}
+          {activeTab === "overview" && <DashboardOverview />}
 
         </main>
       </div>
