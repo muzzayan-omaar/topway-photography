@@ -105,7 +105,7 @@ export default function Stats() {
             className="md:col-span-1"
           >
             <p className="uppercase tracking-[0.3em] text-[#d8b88a] text-xs mb-3">
-              About Me
+              About
             </p>
 
             <h2 className="font-serif text-3xl md:text-4xl font-light mb-5">
@@ -113,7 +113,7 @@ export default function Stats() {
             </h2>
 
             <p className="text-white/60 text-sm leading-relaxed mb-4">
-              I create cinematic visuals that blend storytelling, emotion, and
+              We create cinematic visuals that blend storytelling, emotion, and
               technical precision to produce timeless imagery.
             </p>
 

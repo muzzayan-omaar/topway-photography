@@ -18,7 +18,7 @@ export default function Footer() {
           transition={{ duration: 0.7 }}
           className="font-serif text-5xl md:text-6xl font-light text-white"
         >
-          Rodney <span className="text-[#d8b88a]">Visuals</span>
+          Demo <span className="text-[#d8b88a]">Title</span>
         </motion.h2>
 
         {/* TAGLINE */}
@@ -77,7 +77,7 @@ export default function Footer() {
 
         {/* COPYRIGHT */}
         <p className="mt-12 text-white/20 text-[10px] tracking-[0.3em]">
-          © {new Date().getFullYear()} Rodney Visuals — All Rights Reserved
+          © {new Date().getFullYear()} Demo Title — All Rights Reserved
         </p>
 
       </div>

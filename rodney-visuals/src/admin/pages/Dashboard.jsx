@@ -51,7 +51,7 @@ export default function Dashboard() {
               {isSidebarExpanded ? <ChevronLeft className="w-5 h-5" /> : <ChevronRight className="w-5 h-5" />}
             </button>
 
-            <h1 className="text-3xl font-serif tracking-tight">Rodney Visuals</h1>
+            <h1 className="text-3xl font-serif tracking-tight">Demo Title</h1>
             <span className="text-[#d8b88a] text-sm font-medium tracking-widest">ADMIN</span>
           </div>
 
@@ -64,10 +64,10 @@ export default function Dashboard() {
             <div className="flex items-center gap-3 pl-4 border-l border-white/10">
               <div className="text-right">
                 <p className="font-medium text-sm">Admin</p>
-                <p className="text-xs text-white/50">rodneyvisuals.com</p>
+                <p className="text-xs text-white/50">demo@email.com</p>
               </div>
               <div className="w-9 h-9 bg-[#d8b88a] text-black rounded-full flex items-center justify-center font-semibold">
-                RV
+                DT
               </div>
             </div>
 

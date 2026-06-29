@@ -148,7 +148,7 @@ export default function Hero() {
   }
 
   const {
-    tagline = "PHOTOGRAPHER • FILMMAKER • STORYTELLER",
+    tagline = "PHOTOGRAPHY • FILMMAKING • STORYTELLING",
     title = "Topway Visuals",
     animatedTexts = [
       "Crafting Timeless Visual Stories",

@@ -56,7 +56,7 @@ export default function Navbar() {
         {/* Logo */}
         <div>
           <h2 className="text-white font-serif text-xl md:text-2xl tracking-tight">
-            Jemmy <span className="signature-font text-[#d8b88a]">Visuals</span>
+            Demo <span className="signature-font text-[#d8b88a]">Logo</span>
           </h2>
         </div>
 
@@ -142,12 +142,12 @@ export default function Navbar() {
             className="absolute top-24 right-5 w-[340px] max-w-[92vw] backdrop-blur-2xl bg-white/10 border border-white/15 rounded-3xl p-6 shadow-[0_8px_30px_rgba(0,0,0,0.35)]"
           >
             <h3 className="font-serif text-2xl">
-              Rodney{" "}
-              <span className="signature-font text-[#d8b88a]">Visuals</span>
+              Demo{" "}
+              <span className="signature-font text-[#d8b88a]">Logo</span>
             </h3>
 
             <p className="mt-4 text-sm text-zinc-300 leading-relaxed">
-              Photographer, filmmaker and visual storyteller capturing authentic
+              Photography, filmmaking and visual storytelling capturing authentic
               moments and timeless memories.
             </p>
 
